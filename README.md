@@ -1,32 +1,30 @@
-## Outlog use cases
+# About outlog 
 
-Outlog is a UNIX-style command that can be used to pipe stdout to a logs location on disk or in the cloud without the need of an agent, logrotate, systemd or other configuration files. For example it can:
-- Pipe stdout to cloud providers such as AWS Logs without the need to install an agent.
-- Pipe stdout to disk files with log rotation, without the need to set up logrotate. (Not implemented yet)
+Outlog is a UNIX-style command that can be used to pipe stdout logs to a location on disk or in the cloud without the need of an agent, logrotate, systemd or other configuration files.
 
 Outlog is resilient: it does buffering to temp files to prevent the application from ever blocking when writing to stdout. (Not implemented yet)
 
 Outlog is transparent: it passes through the original stdout without any additional info or error messages.
 
-For example:
+## Use cases
+
+Pipe stdout to cloud providers such as AWS Logs without the need to install an agent:
+
 ```bash
 $ echo foo | outlog --aws-log-group-name '/test/foo'
 foo
 ```
+Pipe stdout to disk files with log rotation, without the need to set up logrotate. (Not implemented yet)
 
-The above command passed through the "foo" to stdout, but also created an AWS log group "/test/foo" with log stream name equal to the hostname, and sent the log "foo".
+## Installation ![](https://github.com/lucabrunox/outlog/actions/workflows/ci.yml/badge.svg)
 
-## Outlog installation
-
-To install in ~/.cargo/bin:
+To install in ~/.cargo/bin from git:
 
 ```bash
-git clone https://github.com/lucabrunox/outlog
-cd outlog
-cargo install --path .
+cargo install --git https://github.com/lucabrunox/outlog
 ```
 
-## Outlog command line parameters
+## Command line parameters
 
 ```bash
 $ outlog --help
@@ -39,7 +37,7 @@ Options:
   -V, --version                                    Print version
 ```
 
-## Outlog roadmap
+## Roadmap
 
 - [X] Send logs to AWS Logs
 - [X] Buffering in-memory
@@ -61,8 +59,8 @@ Options:
   - [ ] Syslog
   - [ ] OTLP
 
-## Outlog license
+## License
 
-License is GPLv3: https://www.gnu.org/licenses/gpl-3.0.html#license-text
+Outlog is licensed under the GPLv3: https://www.gnu.org/licenses/gpl-3.0.html#license-text
 
-All contributions are welcome!
+All contributions are welcome.

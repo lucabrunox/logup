@@ -24,9 +24,7 @@ pub struct AWSLogsWriter {
 
 impl AWSLogsWriter {
     pub async fn new(aws_args: AWSArgs) -> Option<AWSLogsWriter> {
-        if aws_args.aws_log_group_name.is_none() {
-            return None;
-        }
+        aws_args.aws_log_group_name.as_ref()?;
 
         let log_group_name = aws_args.aws_log_group_name.unwrap();
         let log_stream_name = aws_args.aws_log_stream_name.unwrap_or_else(|| {

@@ -1,8 +1,11 @@
-use std::time::SystemTime;
-use async_trait::async_trait;
 use crate::writer::AsyncLogWriter;
+use async_trait::async_trait;
+use std::time::SystemTime;
 
-pub struct MultiWriter<T> where T: AsyncLogWriter {
+pub struct MultiWriter<T>
+where
+    T: AsyncLogWriter,
+{
     writers: Vec<T>,
 }
 
@@ -24,11 +27,11 @@ impl<T: AsyncLogWriter + Send> AsyncLogWriter for MultiWriter<T> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::writer::MockAsyncLogWriter;
+    use mockall::predicate::*;
     use std::ops::Add;
     use std::time::Duration;
-    use mockall::predicate::*;
-    use crate::writer::MockAsyncLogWriter;
-    use super::*;
 
     #[tokio::test]
     async fn test_write_to_multiple_writers() {
@@ -39,16 +42,20 @@ mod tests {
         let buf1: &[u8] = b"test1";
         let time2 = time1.add(Duration::new(100, 0));
         let buf2: &[u8] = b"test2";
-        mock_writer1.expect_write_logs()
+        mock_writer1
+            .expect_write_logs()
             .with(eq(time1), eq(buf1))
             .returning(|_, _| Ok(()));
-        mock_writer1.expect_write_logs()
+        mock_writer1
+            .expect_write_logs()
             .with(eq(time2), eq(buf2))
             .returning(|_, _| Ok(()));
-        mock_writer2.expect_write_logs()
+        mock_writer2
+            .expect_write_logs()
             .with(eq(time1), eq(buf1))
             .returning(|_, _| Ok(()));
-        mock_writer2.expect_write_logs()
+        mock_writer2
+            .expect_write_logs()
             .with(eq(time2), eq(buf2))
             .returning(|_, _| Ok(()));
 

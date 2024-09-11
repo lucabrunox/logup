@@ -1,14 +1,14 @@
+mod multiwriter;
+mod reader;
 mod writer;
 mod writer_aws;
-mod reader;
-mod multiwriter;
 
-use crate::reader::AsyncLogReader;
-use crate::writer::{AsyncLogWriter};
-use crate::writer_aws::{AWSArgs, AWSLogsWriter};
-use clap::{Parser};
-use std::time::SystemTime;
 use crate::multiwriter::MultiWriter;
+use crate::reader::AsyncLogReader;
+use crate::writer::AsyncLogWriter;
+use crate::writer_aws::{AWSArgs, AWSLogsWriter};
+use clap::Parser;
+use std::time::SystemTime;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -25,14 +25,20 @@ pub async fn run(args: OutlogArgs) {
 
     let writers = vec![
         stdout_writer.map(|w| Box::new(w) as Box<dyn AsyncLogWriter + Send>),
-        aws_writer.map(|w| Box::new(w) as Box<dyn AsyncLogWriter + Send>)
-    ].into_iter().flatten().collect();
+        aws_writer.map(|w| Box::new(w) as Box<dyn AsyncLogWriter + Send>),
+    ]
+    .into_iter()
+    .flatten()
+    .collect();
     let mut writer = MultiWriter::new(writers);
 
     read_and_write_loop(&mut reader, &mut writer).await
 }
 
-pub async fn read_and_write_loop(reader: &mut impl AsyncLogReader, writer: &mut impl AsyncLogWriter) {
+pub async fn read_and_write_loop(
+    reader: &mut impl AsyncLogReader,
+    writer: &mut impl AsyncLogWriter,
+) {
     let mut buf: [u8; 1024] = [0; 1024];
     let mut time: SystemTime = SystemTime::now();
 

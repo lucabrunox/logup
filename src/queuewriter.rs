@@ -23,7 +23,11 @@ impl QueueWriter {
             while let Some(event) = rx.recv().await {
                 // TODO: make it configurable
                 let mut retries = 100;
-                while inner.write_logs(event.timestamp, &event.message).await.is_err() {
+                while inner
+                    .write_logs(event.timestamp, &event.message)
+                    .await
+                    .is_err()
+                {
                     // TODO: log
                     if retries <= 0 {
                         break;

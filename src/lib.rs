@@ -28,10 +28,7 @@ pub async fn run(args: OutlogArgs) {
         let mut writers: Vec<Box<dyn AsyncLogWriter + Send>> = vec![];
 
         writers.push(Box::new(tokio::io::stdout()));
-        if let Some((writer, handle)) = AWSLogsWriter::new(args.aws)
-            .await
-            .map(QueueWriter::new)
-        {
+        if let Some((writer, handle)) = AWSLogsWriter::new(args.aws).await.map(QueueWriter::new) {
             writers.push(Box::new(writer));
             handles.push(handle);
         }

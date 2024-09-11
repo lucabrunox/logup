@@ -42,22 +42,24 @@ Options:
 ## Outlog roadmap
 
 - [X] Send logs to AWS Logs
+- [X] Buffering in-memory
+- [ ] Make in-memory buffering configurable
 - [ ] Read from file instead of just stdout
 - [ ] Splitting by lines
-- [ ] Buffering in-memory
 - [ ] Buffering on-disk
 - [ ] Output to disk files with log rotation
 - [ ] Compression
-- [ ] Logging of Outlog itself to disk
+- [ ] Logging of outlog itself to disk
+- [ ] Expose Prometheus endpoint of outlog itself
 - [ ] Distributions
   - [ ] Cargo
   - [ ] Tar
   - [ ] Deb
   - [ ] Rpm
-- [ ] Support more cloud providers
-  - [ ] Azure
-  - [ ] Google
-  - [ ] Datadog
+- [ ] Support more outputs
+  - [ ] Cloud providers
+  - [ ] Syslog
+  - [ ] OTLP
 
 ## Outlog license
 

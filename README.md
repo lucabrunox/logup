@@ -6,7 +6,7 @@ Outlog is a UNIX-style command that can be used to pipe stdout to a logs locatio
 
 Outlog is resilient: it does buffering to temp files to prevent the application from ever blocking when writing to stdout. (Not implemented yet)
 
-Outlog is transparent: it passes through the original stdout without any additional info or error messages. (Not implemented yet)
+Outlog is transparent: it passes through the original stdout without any additional info or error messages.
 
 For example:
 ```bash

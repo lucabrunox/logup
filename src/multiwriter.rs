@@ -16,9 +16,7 @@ impl<T: AsyncLogWriter> MultiWriter<T> {
 impl<T: AsyncLogWriter + Send> AsyncLogWriter for MultiWriter<T> {
     async fn write_logs(&mut self, time: SystemTime, buf: &[u8]) -> std::io::Result<()> {
         for writer in self.writers.iter_mut() {
-            if let Err(e) = writer.write_logs(time, buf).await {
-                return Err(e);
-            }
+            writer.write_logs(time, buf).await?;
         }
         Ok(())
     }

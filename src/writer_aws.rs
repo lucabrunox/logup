@@ -35,7 +35,7 @@ impl AWSLogsWriter {
         let client = aws_sdk_cloudwatchlogs::Client::new(&aws_config::defaults(BehaviorVersion::latest()).load().await);
         create_log_group(&client, &log_group_name).await;
         create_log_stream(&client, &log_group_name, &log_stream_name).await;
-        let writer = AWSLogsWriter { client:  client, log_group_name: log_group_name, log_stream_name: log_stream_name };
+        let writer = AWSLogsWriter { client, log_group_name, log_stream_name };
         Some(writer)
     }
 }

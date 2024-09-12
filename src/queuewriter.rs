@@ -15,25 +15,18 @@ pub struct QueueWriter {
 }
 
 impl QueueWriter {
-    pub fn new<T: AsyncLogWriter + Send + 'static>(mut inner: T) -> (Self, JoinHandle<()>) {
+    pub fn new<T: AsyncLogWriter + Send + 'static>(
+        mut inner: T,
+        limit: usize,
+    ) -> (Self, JoinHandle<()>) {
         // TODO: implement channel bounded based on memory size rather than number of elements
-        let (tx, mut rx) = mpsc::channel::<LogEvent>(100);
+        let (tx, mut rx) = mpsc::channel::<LogEvent>(limit);
 
         let handle = tokio::spawn(async move {
             while let Some(event) = rx.recv().await {
-                // TODO: make it configurable
-                let mut retries = 100;
-                while inner
-                    .write_logs(event.timestamp, &event.message)
-                    .await
-                    .is_err()
-                {
-                    // TODO: log
-                    if retries <= 0 {
-                        break;
-                    }
-                    retries -= 1;
-                }
+                // TODO: log dropped message
+                // retries must be handled downstream
+                let _ = inner.write_logs(event.timestamp, &event.message).await;
             }
         });
         (Self { tx }, handle)
@@ -48,11 +41,90 @@ impl AsyncLogWriter for QueueWriter {
             message: buf.into(),
         }) {
             Ok(_) => Ok(()),
-            Err(Full(_)) => Ok(()), // TODO: let the caller decide whether to drop
+            Err(Full(_)) => Ok(()), // TODO: data loss, let the caller decide whether to lose it
             Err(Closed(_)) => Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "Downstream writer is closed",
             )),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::writer::MockAsyncLogWriter;
+    use mockall::predicate::eq;
+    use std::io::Error;
+    use std::io::ErrorKind::Other;
+
+    #[tokio::test]
+    async fn process_messages() {
+        let mut mock = MockAsyncLogWriter::new();
+
+        let time = SystemTime::now();
+        mock.expect_write_logs()
+            .with(eq(time), eq(b"log1".to_vec()))
+            .times(1)
+            .returning(|_, _| Ok(()));
+        mock.expect_write_logs()
+            .with(eq(time), eq(b"log2".to_vec()))
+            .times(1)
+            .returning(|_, _| Ok(()));
+
+        let (mut writer, handle) = QueueWriter::new(mock, 2);
+        writer.write_logs(time, b"log1").await.unwrap();
+        writer.write_logs(time, b"log2").await.unwrap();
+        drop(writer);
+        handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn drop_message_after_reaching_limit() {
+        // TODO
+    }
+
+    #[tokio::test]
+    async fn retry_message_after_error() {
+        let mut mock = MockAsyncLogWriter::new();
+
+        let time = SystemTime::now();
+        mock.expect_write_logs()
+            .with(eq(time), eq(b"log1".to_vec()))
+            .times(1)
+            .returning(|_, _| Err(Error::new(Other, "Error")));
+        mock.expect_write_logs()
+            .with(eq(time), eq(b"log1".to_vec()))
+            .times(1)
+            .returning(|_, _| Ok(()));
+        mock.expect_write_logs()
+            .with(eq(time), eq(b"log1".to_vec()))
+            .times(0);
+
+        let (mut writer, handle) = QueueWriter::new(mock, 1);
+        writer.write_logs(time, b"log1").await.unwrap();
+        drop(writer);
+
+        handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn drop_message_after_max_retries() {
+        let mut mock = MockAsyncLogWriter::new();
+
+        let time = SystemTime::now();
+        mock.expect_write_logs()
+            .with(eq(time), eq(b"log1".to_vec()))
+            .times(3)
+            .returning(|_, _| Err(Error::new(Other, "Error")));
+        mock.expect_write_logs()
+            .with(eq(time), eq(b"log1".to_vec()))
+            .times(0);
+
+        let (mut writer, handle) = QueueWriter::new(mock, 1);
+        writer.write_logs(time, b"log1").await.unwrap();
+        drop(writer);
+
+        handle.await.unwrap();
     }
 }

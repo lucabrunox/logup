@@ -24,24 +24,30 @@ To install in ~/.cargo/bin from git:
 cargo install --git https://github.com/lucabrunox/outlog
 ```
 
-## Command line parameters
+## Command line arguments
 
 ```bash
-$ outlog --help
 Usage: outlog [OPTIONS]
 
 Options:
-      --aws-log-group-name <AWS_LOG_GROUP_NAME>    
-      --aws-log-stream-name <AWS_LOG_STREAM_NAME>  
-  -h, --help                                       Print help
-  -V, --version                                    Print version
+      --aws-log-group-name <AWS_LOG_GROUP_NAME>
+          Required to enable uploading logs to AWS Logs
+      --aws-log-stream-name <AWS_LOG_STREAM_NAME>
+          Log stream name [default: local hostname]
+      --aws-max-memory-items <AWS_MAX_MEMORY_ITEMS>
+          Max logs to keep in memory before dropping the incoming ones [default: 1000]
+      --aws-max-retries <AWS_MAX_RETRIES>
+          Max retries before dropping a log [default: 100]
+  -h, --help
+          Print help
+  -V, --version
+          Print version
 ```
 
 ## Roadmap
 
 - [X] Send logs to AWS Logs
 - [X] Buffering in-memory
-- [ ] Make in-memory buffering configurable
 - [ ] Read from file instead of just stdout
 - [ ] Splitting by lines
 - [ ] Buffering on-disk

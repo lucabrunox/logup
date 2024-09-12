@@ -2,6 +2,7 @@ use crate::report_err;
 use crate::writer::AsyncLogWriter;
 use async_trait::async_trait;
 use aws_config::BehaviorVersion;
+use aws_sdk_cloudwatchlogs::config::retry::RetryConfig;
 use aws_sdk_cloudwatchlogs::types::InputLogEvent;
 use aws_sdk_cloudwatchlogs::Client;
 use clap::Args;
@@ -10,10 +11,26 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[derive(Args)]
 #[group()]
 pub struct AWSArgs {
-    #[arg(long)]
+    #[arg(long, help = "Required to enable uploading logs to AWS Logs")]
     aws_log_group_name: Option<String>,
-    #[arg(long, requires = "aws_log_group_name")]
+    #[arg(
+        long,
+        requires = "aws_log_group_name",
+        help = "Log stream name [default: local hostname]"
+    )]
     aws_log_stream_name: Option<String>,
+    #[arg(
+        long,
+        help = "Max logs to keep in memory before dropping the incoming ones",
+        default_value = "1000"
+    )]
+    pub(crate) aws_max_memory_items: usize,
+    #[arg(
+        long,
+        help = "Max retries before dropping a log",
+        default_value = "100"
+    )]
+    pub(crate) aws_max_retries: u32,
 }
 
 pub struct AWSLogsWriter {
@@ -23,15 +40,21 @@ pub struct AWSLogsWriter {
 }
 
 impl AWSLogsWriter {
-    pub async fn new(aws_args: AWSArgs) -> Option<AWSLogsWriter> {
+    pub async fn new(aws_args: &AWSArgs) -> Option<AWSLogsWriter> {
         aws_args.aws_log_group_name.as_ref()?;
 
-        let log_group_name = aws_args.aws_log_group_name.unwrap();
+        let log_group_name = aws_args.aws_log_group_name.clone().unwrap();
         let log_stream_name = aws_args
             .aws_log_stream_name
+            .clone()
             .unwrap_or_else(|| hostname::get().unwrap().into_string().unwrap());
         let client = aws_sdk_cloudwatchlogs::Client::new(
-            &aws_config::defaults(BehaviorVersion::latest()).load().await,
+            &aws_config::defaults(BehaviorVersion::latest())
+                .retry_config(
+                    RetryConfig::standard().with_max_attempts(aws_args.aws_max_retries + 1), // initial call is included
+                )
+                .load()
+                .await,
         );
         create_log_group(&client, &log_group_name).await;
         create_log_stream(&client, &log_group_name, &log_stream_name).await;

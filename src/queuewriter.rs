@@ -85,37 +85,13 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn retry_message_after_error() {
+    async fn drop_message_after_error() {
         let mut mock = MockAsyncLogWriter::new();
 
         let time = SystemTime::now();
         mock.expect_write_logs()
             .with(eq(time), eq(b"log1".to_vec()))
             .times(1)
-            .returning(|_, _| Err(Error::new(Other, "Error")));
-        mock.expect_write_logs()
-            .with(eq(time), eq(b"log1".to_vec()))
-            .times(1)
-            .returning(|_, _| Ok(()));
-        mock.expect_write_logs()
-            .with(eq(time), eq(b"log1".to_vec()))
-            .times(0);
-
-        let (mut writer, handle) = QueueWriter::new(mock, 1);
-        writer.write_logs(time, b"log1").await.unwrap();
-        drop(writer);
-
-        handle.await.unwrap();
-    }
-
-    #[tokio::test]
-    async fn drop_message_after_max_retries() {
-        let mut mock = MockAsyncLogWriter::new();
-
-        let time = SystemTime::now();
-        mock.expect_write_logs()
-            .with(eq(time), eq(b"log1".to_vec()))
-            .times(3)
             .returning(|_, _| Err(Error::new(Other, "Error")));
         mock.expect_write_logs()
             .with(eq(time), eq(b"log1".to_vec()))

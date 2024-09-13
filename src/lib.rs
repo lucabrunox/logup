@@ -1,14 +1,16 @@
-mod multiwriter;
-mod queuewriter;
 mod reader;
 mod writer;
 mod writer_aws;
+mod writer_lines;
+mod writer_multi;
+mod writer_queue;
 
-use crate::multiwriter::MultiWriter;
-use crate::queuewriter::QueueWriter;
 use crate::reader::AsyncLogReader;
 use crate::writer::AsyncLogWriter;
 use crate::writer_aws::{AWSArgs, AWSLogsWriter};
+use crate::writer_lines::LinesWriter;
+use crate::writer_multi::MultiWriter;
+use crate::writer_queue::QueueWriter;
 use clap::Parser;
 use std::time::SystemTime;
 use tokio::task::JoinHandle;
@@ -16,6 +18,13 @@ use tokio::task::JoinHandle;
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct OutlogArgs {
+    #[arg(
+        long,
+        default_value_t = 1000000,
+        help = "Force flush without newline beyond the given size"
+    )]
+    max_line_size: usize,
+
     #[command(flatten)]
     aws: AWSArgs,
 }
@@ -25,9 +34,8 @@ pub async fn run(args: OutlogArgs) {
 
     {
         let mut reader = tokio::io::stdin();
-        let mut writers: Vec<Box<dyn AsyncLogWriter + Send>> = vec![];
 
-        writers.push(Box::new(tokio::io::stdout()));
+        let mut writers: Vec<Box<dyn AsyncLogWriter + Send>> = vec![];
         if let Some((writer, handle)) = AWSLogsWriter::new(&args.aws)
             .await
             .map(|w| QueueWriter::new(w, args.aws.aws_max_memory_items))
@@ -36,7 +44,13 @@ pub async fn run(args: OutlogArgs) {
             handles.push(handle);
         }
 
-        let mut writer = MultiWriter::new(writers);
+        let mut writer = MultiWriter::new(vec![
+            Box::new(tokio::io::stdout()) as Box<dyn AsyncLogWriter + Send>,
+            Box::new(LinesWriter::new(
+                MultiWriter::new(writers),
+                args.max_line_size,
+            )),
+        ]);
         read_and_write_loop(&mut reader, &mut writer).await;
     }
 

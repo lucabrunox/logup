@@ -10,8 +10,8 @@ where
 }
 
 impl<T: AsyncLogWriter> MultiWriter<T> {
-    pub fn new(writers: Vec<T>) -> MultiWriter<T> {
-        MultiWriter { writers }
+    pub fn new(writers: Vec<T>) -> Self {
+        Self { writers }
     }
 }
 

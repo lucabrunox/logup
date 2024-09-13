@@ -40,7 +40,7 @@ pub struct AWSLogsWriter {
 }
 
 impl AWSLogsWriter {
-    pub async fn new(aws_args: &AWSArgs) -> Option<AWSLogsWriter> {
+    pub async fn new(aws_args: &AWSArgs) -> Option<Self> {
         aws_args.aws_log_group_name.as_ref()?;
 
         let log_group_name = aws_args.aws_log_group_name.clone().unwrap();
@@ -58,7 +58,7 @@ impl AWSLogsWriter {
         );
         create_log_group(&client, &log_group_name).await;
         create_log_stream(&client, &log_group_name, &log_stream_name).await;
-        let writer = AWSLogsWriter {
+        let writer = Self {
             client,
             log_group_name,
             log_stream_name,

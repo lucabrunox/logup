@@ -30,6 +30,8 @@ cargo install --git https://github.com/lucabrunox/outlog
 Usage: outlog [OPTIONS]
 
 Options:
+      --max-line-size <MAX_LINE_SIZE>
+          Force flush without newline beyond the given size [default: 1000000]
       --aws-log-group-name <AWS_LOG_GROUP_NAME>
           Required to enable uploading logs to AWS Logs
       --aws-log-stream-name <AWS_LOG_STREAM_NAME>

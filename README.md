@@ -8,12 +8,22 @@ Outlog is transparent: it passes through the original stdout without any additio
 
 ## Use cases
 
-Pipe stdout to cloud providers such as AWS Logs without the need to install an agent:
+Upload to AWS Logs:
 
 ```bash
-$ echo foo | outlog --aws-log-group-name '/test/foo'
+# environment with region and credentials
+$ echo foo | outlog --aws --aws-log-group-name '/test/foo'
 foo
 ```
+
+Upload to NewRelic:
+
+```bash
+$ export NEW_RELIC_API_KEY = "..."
+$ echo foo | outlog --newrelic --newrelic-region EU
+foo
+```
+
 Pipe stdout to disk files with log rotation, without the need to set up logrotate. (Not implemented yet)
 
 ## Installation ![](https://github.com/lucabrunox/outlog/actions/workflows/ci.yml/badge.svg)
@@ -24,7 +34,7 @@ To install in ~/.cargo/bin from git:
 cargo install --git https://github.com/lucabrunox/outlog
 ```
 
-## Command line arguments
+## Command line usage
 
 ```bash
 Usage: outlog [OPTIONS]
@@ -32,14 +42,22 @@ Usage: outlog [OPTIONS]
 Options:
       --max-line-size <MAX_LINE_SIZE>
           Force flush without newline beyond the given size [default: 1000000]
-      --aws-log-group-name <AWS_LOG_GROUP_NAME>
-          Required to enable uploading logs to AWS Logs
-      --aws-log-stream-name <AWS_LOG_STREAM_NAME>
-          Log stream name [default: local hostname]
-      --aws-max-memory-items <AWS_MAX_MEMORY_ITEMS>
+      --max-memory-items <MAX_MEMORY_ITEMS>
           Max logs to keep in memory before dropping the incoming ones [default: 1000]
-      --aws-max-retries <AWS_MAX_RETRIES>
+      --max-retries <MAX_RETRIES>
           Max retries before dropping a log [default: 100]
+      --aws
+          Enable uploading logs to AWS Logs
+      --aws-log-group-name <AWS_LOG_GROUP_NAME>
+          
+      --aws-log-stream-name <AWS_LOG_STREAM_NAME>
+          Log stream name [default: hostname]
+      --newrelic
+          Enable uploading logs to NewRelic
+      --newrelic-region <NEW_RELIC_REGION>
+          [env: NEW_RELIC_REGION] [possible values: US, EU]
+      --newrelic-api-key <NEW_RELIC_API_KEY>
+          [env: NEW_RELIC_API_KEY]
   -h, --help
           Print help
   -V, --version

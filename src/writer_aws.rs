@@ -11,26 +11,18 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[derive(Args)]
 #[group()]
 pub struct AWSArgs {
-    #[arg(long, help = "Required to enable uploading logs to AWS Logs")]
+    #[arg(
+        long,
+        help = "Enable uploading logs to AWS Logs",
+        requires = "aws_log_group_name"
+    )]
+    aws: bool,
+
+    #[arg(long, requires = "aws")]
     aws_log_group_name: Option<String>,
-    #[arg(
-        long,
-        requires = "aws_log_group_name",
-        help = "Log stream name [default: local hostname]"
-    )]
+
+    #[arg(long, requires = "aws", help = "Log stream name [default: hostname]")]
     aws_log_stream_name: Option<String>,
-    #[arg(
-        long,
-        help = "Max logs to keep in memory before dropping the incoming ones",
-        default_value = "1000"
-    )]
-    pub(crate) aws_max_memory_items: usize,
-    #[arg(
-        long,
-        help = "Max retries before dropping a log",
-        default_value = "100"
-    )]
-    pub(crate) aws_max_retries: u32,
 }
 
 pub struct AWSLogsWriter {
@@ -40,18 +32,20 @@ pub struct AWSLogsWriter {
 }
 
 impl AWSLogsWriter {
-    pub async fn new(aws_args: &AWSArgs) -> Option<Self> {
-        aws_args.aws_log_group_name.as_ref()?;
+    pub async fn new(args: &AWSArgs, max_retries: u32) -> Option<Self> {
+        if !args.aws {
+            return None;
+        }
 
-        let log_group_name = aws_args.aws_log_group_name.clone().unwrap();
-        let log_stream_name = aws_args
+        let log_group_name = args.aws_log_group_name.clone().unwrap();
+        let log_stream_name = args
             .aws_log_stream_name
             .clone()
             .unwrap_or_else(|| hostname::get().unwrap().into_string().unwrap());
         let client = aws_sdk_cloudwatchlogs::Client::new(
             &aws_config::defaults(BehaviorVersion::latest())
                 .retry_config(
-                    RetryConfig::standard().with_max_attempts(aws_args.aws_max_retries + 1), // initial call is included
+                    RetryConfig::standard().with_max_attempts(max_retries + 1), // initial call is included
                 )
                 .load()
                 .await,

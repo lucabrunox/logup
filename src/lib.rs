@@ -3,6 +3,7 @@ mod writer;
 mod writer_aws;
 mod writer_lines;
 mod writer_multi;
+mod writer_newrelic;
 mod writer_queue;
 
 use crate::reader::AsyncLogReader;
@@ -10,13 +11,17 @@ use crate::writer::AsyncLogWriter;
 use crate::writer_aws::{AWSArgs, AWSLogsWriter};
 use crate::writer_lines::LinesWriter;
 use crate::writer_multi::MultiWriter;
+use crate::writer_newrelic::{NewRelicArgs, NewRelicWriter};
 use crate::writer_queue::QueueWriter;
 use clap::Parser;
 use std::time::SystemTime;
 use tokio::task::JoinHandle;
 
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+#[command(
+    version,
+    about = "Find examples on https://github.com/lucabrunox/outlog"
+)]
 pub struct OutlogArgs {
     #[arg(
         long,
@@ -25,8 +30,27 @@ pub struct OutlogArgs {
     )]
     max_line_size: usize,
 
+    #[arg(
+        long,
+        requires = "aws",
+        help = "Max logs to keep in memory before dropping the incoming ones",
+        default_value = "1000"
+    )]
+    max_memory_items: usize,
+
+    #[arg(
+        long,
+        requires = "aws",
+        help = "Max retries before dropping a log",
+        default_value = "100"
+    )]
+    max_retries: u32,
+
     #[command(flatten)]
     aws: AWSArgs,
+
+    #[command(flatten)]
+    newrelic: NewRelicArgs,
 }
 
 pub async fn run(args: OutlogArgs) {
@@ -36,9 +60,16 @@ pub async fn run(args: OutlogArgs) {
         let mut reader = tokio::io::stdin();
 
         let mut writers: Vec<Box<dyn AsyncLogWriter + Send>> = vec![];
-        if let Some((writer, handle)) = AWSLogsWriter::new(&args.aws)
+        if let Some((writer, handle)) = AWSLogsWriter::new(&args.aws, args.max_retries)
             .await
-            .map(|w| QueueWriter::new(w, args.aws.aws_max_memory_items))
+            .map(|w| QueueWriter::new(w, args.max_memory_items))
+        {
+            writers.push(Box::new(writer));
+            handles.push(handle);
+        }
+
+        if let Some((writer, handle)) =
+            NewRelicWriter::new(&args.newrelic).map(|w| QueueWriter::new(w, args.max_memory_items))
         {
             writers.push(Box::new(writer));
             handles.push(handle);

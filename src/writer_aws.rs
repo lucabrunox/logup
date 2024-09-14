@@ -18,10 +18,12 @@ pub struct AWSArgs {
     )]
     aws: bool,
 
-    #[arg(long, requires = "aws")]
+    #[arg(long, requires = "aws", env = "AWS_LOG_GROUP_NAME",
+        hide_env_values = true)]
     aws_log_group_name: Option<String>,
 
-    #[arg(long, requires = "aws", help = "Log stream name [default: hostname]")]
+    #[arg(long, requires = "aws", env = "AWS_LOG_STREAM_NAME",
+        hide_env_values = true, help = "Log stream name [default: hostname]")]
     aws_log_stream_name: Option<String>,
 }
 

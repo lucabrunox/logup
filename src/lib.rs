@@ -23,6 +23,12 @@ use tokio::task::JoinHandle;
     about = "Find examples on https://github.com/lucabrunox/outlog"
 )]
 pub struct OutlogArgs {
+    #[command(flatten)]
+    aws: AWSArgs,
+
+    #[command(flatten)]
+    newrelic: NewRelicArgs,
+
     #[arg(
         long,
         default_value_t = 1000000,
@@ -45,12 +51,6 @@ pub struct OutlogArgs {
         default_value = "100"
     )]
     max_retries: u32,
-
-    #[command(flatten)]
-    aws: AWSArgs,
-
-    #[command(flatten)]
-    newrelic: NewRelicArgs,
 }
 
 pub async fn run(args: OutlogArgs) {

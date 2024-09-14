@@ -40,12 +40,6 @@ cargo install --git https://github.com/lucabrunox/outlog
 Usage: outlog [OPTIONS]
 
 Options:
-      --max-line-size <MAX_LINE_SIZE>
-          Force flush without newline beyond the given size [default: 1000000]
-      --max-memory-items <MAX_MEMORY_ITEMS>
-          Max logs to keep in memory before dropping the incoming ones [default: 1000]
-      --max-retries <MAX_RETRIES>
-          Max retries before dropping a log [default: 100]
       --aws
           Enable uploading logs to AWS Logs
       --aws-log-group-name <AWS_LOG_GROUP_NAME>
@@ -58,6 +52,12 @@ Options:
           [env: NEW_RELIC_REGION] [possible values: US, EU]
       --newrelic-api-key <NEW_RELIC_API_KEY>
           [env: NEW_RELIC_API_KEY]
+      --max-line-size <MAX_LINE_SIZE>
+          Force flush without newline beyond the given size [default: 1000000]
+      --max-memory-items <MAX_MEMORY_ITEMS>
+          Max logs to keep in memory before dropping the incoming ones [default: 1000]
+      --max-retries <MAX_RETRIES>
+          Max retries before dropping a log [default: 100]
   -h, --help
           Print help
   -V, --version

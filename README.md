@@ -69,7 +69,7 @@ Options:
 - [X] Send logs to AWS Logs
 - [X] Buffering in-memory
 - [X] Splitting by lines
-- [ ] Read from file instead of just stdout
+- [X] Read from file instead of just stdout
 - [ ] Buffering on-disk
 - [ ] Output to disk files with log rotation
 - [ ] Compression

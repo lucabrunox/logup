@@ -14,7 +14,9 @@ use crate::writer_multi::MultiWriter;
 use crate::writer_newrelic::{NewRelicArgs, NewRelicWriter};
 use crate::writer_queue::QueueWriter;
 use clap::Parser;
+use std::path::PathBuf;
 use std::time::SystemTime;
+use tokio::fs::File;
 use tokio::task::JoinHandle;
 
 #[derive(Parser)]
@@ -51,13 +53,19 @@ pub struct OutlogArgs {
         default_value = "100"
     )]
     max_retries: u32,
+
+    #[arg(long, help = "Read logs from a file instead of stdin")]
+    input_file: Option<PathBuf>,
 }
 
 pub async fn run(args: OutlogArgs) {
     let mut handles: Vec<JoinHandle<()>> = vec![];
 
     {
-        let mut reader = tokio::io::stdin();
+        let mut reader = match args.input_file {
+            Some(path) => Box::new(File::open(path).await.unwrap()),
+            None => Box::new(tokio::io::stdin()) as Box<dyn AsyncLogReader + Send>,
+        };
 
         let mut writers: Vec<Box<dyn AsyncLogWriter + Send>> = vec![];
         if let Some((writer, handle)) = AWSLogsWriter::new(&args.aws, args.max_retries)

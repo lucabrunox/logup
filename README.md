@@ -37,15 +37,18 @@ cargo install --git https://github.com/lucabrunox/outlog
 ## Command line usage
 
 ```bash
-Usage: outlog [OPTIONS]
+Usage: outlog [OPTIONS] [INPUT_FILE]
+
+Arguments:
+  [INPUT_FILE]  Read logs from a file instead of stdin
 
 Options:
       --aws
           Enable uploading logs to AWS Logs
       --aws-log-group-name <AWS_LOG_GROUP_NAME>
-          
+          [env: AWS_LOG_GROUP_NAME]
       --aws-log-stream-name <AWS_LOG_STREAM_NAME>
-          Log stream name [default: hostname]
+          Log stream name [default: hostname] [env: AWS_LOG_STREAM_NAME]
       --newrelic
           Enable uploading logs to NewRelic
       --newrelic-region <NEW_RELIC_REGION>

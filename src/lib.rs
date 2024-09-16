@@ -54,7 +54,7 @@ pub struct OutlogArgs {
     )]
     max_retries: u32,
 
-    #[arg(long, help = "Read logs from a file instead of stdin")]
+    #[arg(help = "Read logs from a file instead of stdin")]
     input_file: Option<PathBuf>,
 }
 

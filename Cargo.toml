@@ -2,6 +2,16 @@
 name = "outlog"
 version = "0.1.0"
 edition = "2021"
+description = "Outlog is a UNIX-style command that can be used to pipe stdout logs to location on disk or in the cloud without the need of an agent, logrotate, systemd or other configuration files"
+repository = "https://github.com/lucabrunox/outlog"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+keywords = ["logging", "cloud", "linux", "cli", "pipe"]
+categories = ["command-line-interface", "development-tools::debugging"]
+exclude = [
+  "/.github/",
+  "/.gitignore",
+]
 
 [dependencies]
 aws-config = "1.5.5"

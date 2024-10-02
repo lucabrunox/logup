@@ -1,9 +1,9 @@
 [package]
-name = "outlog"
+name = "logup"
 version = "0.1.0"
 edition = "2021"
-description = "Outlog is a UNIX-style command that can be used to pipe stdout logs to location on disk or in the cloud without the need of an agent, logrotate, systemd or other configuration files"
-repository = "https://github.com/lucabrunox/outlog"
+description = "Logup is a UNIX-style command that can be used to pipe stdout logs to location on disk or in the cloud without the need of an agent, logrotate, systemd or other configuration files"
+repository = "https://github.com/lucabrunox/logup"
 readme = "README.md"
 license = "GPL-3.0-or-later"
 keywords = ["logging", "cloud", "linux", "cli", "pipe"]

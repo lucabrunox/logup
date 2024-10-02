@@ -1,9 +1,9 @@
 use clap::Parser;
-use outlog::OutlogArgs;
+use logup::OutlogArgs;
 
 // Single-thread on purpose to consume the least amount of resources.
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     let cli = OutlogArgs::parse();
-    outlog::run(cli).await;
+    logup::run(cli).await;
 }

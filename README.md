@@ -1,10 +1,10 @@
-# About outlog 
+# About logup
 
-Outlog is a UNIX-style command that can be used to pipe stdout logs to a location on disk or in the cloud without the need of an agent, logrotate, systemd or other configuration files.
+Logup is a UNIX-style command that can be used to pipe stdout logs to a location on disk or in the cloud without the need of an agent, logrotate, systemd or other configuration files.
 
-Outlog is resilient: it does buffering to temp files to prevent the application from ever blocking when writing to stdout. (Not implemented yet)
+Logup is resilient: it does buffering to temp files to prevent the application from ever blocking when writing to stdout. (Not implemented yet)
 
-Outlog is transparent: it passes through the original stdout without any additional info or error messages.
+Logup is transparent: it passes through the original stdout without any additional info or error messages.
 
 ## Use cases
 
@@ -12,7 +12,7 @@ Upload to AWS Logs:
 
 ```bash
 # environment with region and credentials
-$ echo foo | outlog --aws --aws-log-group-name '/test/foo'
+$ echo foo | logup --aws --aws-log-group-name '/test/foo'
 foo
 ```
 
@@ -20,24 +20,24 @@ Upload to NewRelic:
 
 ```bash
 $ export NEW_RELIC_API_KEY = "..."
-$ echo foo | outlog --newrelic --newrelic-region EU
+$ echo foo | logup --newrelic --newrelic-region EU
 foo
 ```
 
 Pipe stdout to disk files with log rotation, without the need to set up logrotate. (Not implemented yet)
 
-## Installation ![](https://github.com/lucabrunox/outlog/actions/workflows/ci.yml/badge.svg)
+## Installation ![](https://github.com/lucabrunox/logup/actions/workflows/ci.yml/badge.svg)
 
 To install in ~/.cargo/bin from git:
 
 ```bash
-cargo install --git https://github.com/lucabrunox/outlog
+cargo install logup
 ```
 
 ## Command line usage
 
 ```bash
-Usage: outlog [OPTIONS] [INPUT_FILE]
+Usage: logup [OPTIONS] [INPUT_FILE]
 
 Arguments:
   [INPUT_FILE]  Read logs from a file instead of stdin
@@ -76,8 +76,8 @@ Options:
 - [ ] Buffering on-disk
 - [ ] Output to disk files with log rotation
 - [ ] Compression
-- [ ] Logging of outlog itself to disk
-- [ ] Expose Prometheus endpoint of outlog itself
+- [ ] Logging of logup itself to disk
+- [ ] Expose Prometheus endpoint of logup itself
 - [ ] Distributions
   - [ ] Cargo
   - [ ] Tar
@@ -90,6 +90,6 @@ Options:
 
 ## License
 
-Outlog is licensed under the GPLv3: https://www.gnu.org/licenses/gpl-3.0.html#license-text
+Logup is licensed under the GPLv3: https://www.gnu.org/licenses/gpl-3.0.html#license-text
 
 All contributions are welcome.

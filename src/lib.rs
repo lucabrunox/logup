@@ -22,9 +22,9 @@ use tokio::task::JoinHandle;
 #[derive(Parser)]
 #[command(
     version,
-    about = "Find examples on https://github.com/lucabrunox/outlog"
+    about = "Find examples on https://github.com/lucabrunox/logup"
 )]
-pub struct OutlogArgs {
+pub struct LogupArgs {
     #[command(flatten)]
     aws: AWSArgs,
 
@@ -58,7 +58,7 @@ pub struct OutlogArgs {
     input_file: Option<PathBuf>,
 }
 
-pub async fn run(args: OutlogArgs) {
+pub async fn run(args: LogupArgs) {
     let mut handles: Vec<JoinHandle<()>> = vec![];
 
     {

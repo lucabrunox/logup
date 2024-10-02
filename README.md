@@ -28,7 +28,7 @@ Pipe stdout to disk files with log rotation, without the need to set up logrotat
 
 ## Installation ![](https://github.com/lucabrunox/logup/actions/workflows/ci.yml/badge.svg)
 
-To install in ~/.cargo/bin from git:
+To install the latest release in ~/.cargo/bin:
 
 ```bash
 cargo install logup

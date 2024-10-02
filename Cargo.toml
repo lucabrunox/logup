@@ -1,6 +1,6 @@
 [package]
 name = "logup"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Logup is a UNIX-style command that can be used to pipe stdout logs to location on disk or in the cloud without the need of an agent, logrotate, systemd or other configuration files"
 repository = "https://github.com/lucabrunox/logup"

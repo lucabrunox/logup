@@ -36,7 +36,7 @@ cargo install logup
 
 ## Command line usage
 
-```bash
+```
 Usage: logup [OPTIONS] [INPUT_FILE]
 
 Arguments:
@@ -73,13 +73,14 @@ Options:
 - [X] Buffering in-memory
 - [X] Splitting by lines
 - [X] Read from file instead of just stdout
+- [ ] Make it easy to wrap a Docker entrypoint
 - [ ] Buffering on-disk
 - [ ] Output to disk files with log rotation
 - [ ] Compression
 - [ ] Logging of logup itself to disk
 - [ ] Expose Prometheus endpoint of logup itself
 - [ ] Distributions
-  - [ ] Cargo
+  - [X] Cargo
   - [ ] Tar
   - [ ] Deb
   - [ ] Rpm
